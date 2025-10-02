@@ -1,4 +1,51 @@
 feedback_id,text,source,date
-1,App crashes on login,survey,2025-10-01
-2,Love the new feature!,social,2025-10-02
-3,Feature is confusing,survey,2025-09-30
+1,"App crashes on login",survey,2025-10-01
+2,"Love the new feature!",social,2025-10-02
+3,"Feature is confusing",survey,2025-09-30
+4,"Notifications are too frequent",social,2025-10-03
+5,"App loads very slowly",survey,2025-10-01
+6,"Customer support was helpful",social,2025-10-02
+7,"Hard to navigate through menus",survey,2025-09-29
+8,"Great user interface!",social,2025-10-04
+9,"Login process takes too long",survey,2025-10-01
+10,"Unable to reset password",social,2025-10-03
+11,"New update broke my settings",survey,2025-10-02
+12,"App design is very appealing",social,2025-10-04
+13,"Payment gateway failed",survey,2025-10-03
+14,"Notifications are useful",social,2025-10-05
+15,"App freezes when uploading image",survey,2025-10-02
+16,"Search function does not work",survey,2025-10-01
+17,"Loving the dark mode feature",social,2025-10-05
+18,"App drains battery too fast",survey,2025-10-03
+19,"Helpful tutorials for beginners",social,2025-10-04
+20,"Confusing error messages",survey,2025-09-30
+21,"Video upload failed",social,2025-10-02
+22,"App is very responsive",social,2025-10-03
+23,"Profile settings are hard to find",survey,2025-09-29
+24,"Enjoyed the new chat feature!",social,2025-10-05
+25,"Notifications not appearing",survey,2025-10-01
+26,"Love the new dashboard design",social,2025-10-04
+27,"App crashes during payment",survey,2025-10-02
+28,"Customer support response time is fast",social,2025-10-03
+29,"Unable to download files",survey,2025-10-01
+30,"App is slow on older devices",social,2025-10-04
+31,"Feature suggestions are implemented quickly",social,2025-10-05
+32,"App does not open on startup",survey,2025-10-01
+33,"Like the color scheme",social,2025-10-02
+34,"Push notifications are delayed",survey,2025-10-03
+35,"Settings reset after update",survey,2025-10-01
+36,"App feels very smooth and intuitive",social,2025-10-05
+37,"Hard to find support articles",survey,2025-09-30
+38,"Love the integration with calendar",social,2025-10-03
+39,"App crashes after long usage",survey,2025-10-02
+40,"Enjoyed the offline mode!",social,2025-10-04
+41,"Search results are irrelevant",survey,2025-09-29
+42,"App tutorials are very helpful",social,2025-10-05
+43,"Frequent app logout issue",survey,2025-10-01
+44,"Notifications sound is too loud",social,2025-10-03
+45,"Unable to sync data across devices",survey,2025-10-02
+46,"App loading animation is nice",social,2025-10-04
+47,"Confusing navigation between tabs",survey,2025-09-30
+48,"Love the interactive tutorials!",social,2025-10-05
+49,"App freezes when opening settings",survey,2025-10-02
+50,"Customer support is very friendly",social,2025-10-04
