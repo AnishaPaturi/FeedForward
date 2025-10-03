@@ -1,12 +1,15 @@
-# backend/app.py
-
 from fastapi import FastAPI, Query
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import os
 import pandas as pd
-from backend.ai_logic import classify_feedback  # ✅ clean import
+
+from backend.ai_logic import classify_feedback
+from backend.feedback_processing import process_feedback
+from backend.feedback_processing.generate_report import generate_report
+from backend.integrations.email_sender import send_email_report
+from backend.integrations.slack_notion_sender import send_slack_report
 
 # --- App Setup ---
 app = FastAPI()
@@ -19,7 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Load Feedback CSV ---
+# --- Load CSV ---
 DATA_FILE = os.path.join("data", "feedback.csv")
 if os.path.exists(DATA_FILE):
     df = pd.read_csv(DATA_FILE)
@@ -44,11 +47,46 @@ def classify_endpoint(text: Optional[str] = Query(None)):
     if not text:
         return {"error": "Please provide ?text=Your feedback here"}
     result = classify_feedback(text)
-    return {"feedback": text, "classification": result}
+    return {
+        "feedback": text,
+        "classification": {
+            "urgency": result.get("urgency"),
+            "impact": result.get("impact"),
+            "summary": result.get("summary"),
+            "reason": result.get("reason")
+        }
+    }
 
-# @app.get("/favicon.ico")
-# async def favicon():
-#     favicon_path = os.path.join("static", "favicon.ico")
-#     if os.path.exists(favicon_path):
-#         return FileResponse(favicon_path)
-#     return {"error": "favicon not found"}
+# --- Generate Weekly Report ---
+@app.get("/generate_report")
+def generate_weekly_report(format: Optional[str] = "json"):
+    processed_feedback = process_feedback.get_processed_feedback(DATA_FILE)
+    report_file = generate_report(processed_feedback, format=format)
+    return {"message": f"Report generated: {report_file}", "file": report_file}
+
+# --- Send Report via Slack ---
+@app.get("/send_slack")
+def send_report_slack(webhook_url: str, format: Optional[str] = "json"):
+    processed_feedback = process_feedback.get_processed_feedback(DATA_FILE)
+    report_file = generate_report(processed_feedback, format=format)
+    send_slack_report(webhook_url, report_file)
+    return {"message": "Report sent to Slack", "file": report_file}
+
+# --- Send Report via Email ---
+@app.get("/send_email")
+def send_report_email(
+    sender_email: str,
+    sender_password: str,
+    recipient_email: str,
+    subject: Optional[str] = "Weekly Feedback Report",
+    body: Optional[str] = "Please find attached the weekly feedback report.",
+    format: Optional[str] = "json"
+):
+    processed_feedback = process_feedback.get_processed_feedback(DATA_FILE)
+    report_file = generate_report(processed_feedback, format=format)
+    send_email_report(sender_email, sender_password, recipient_email, subject, body, report_file)
+    return {"message": f"Report sent to {recipient_email}", "file": report_file}
+
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(os.path.join("static", "favicon.ico"))

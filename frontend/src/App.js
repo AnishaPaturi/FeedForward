@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import Papa from "papaparse";
 import Workflow from "./Workflow";
 import "bootstrap/dist/css/bootstrap.min.css";
-import LangGraphViz from "./components/LangGraphViz";
 
 function App() {
   const [feedbackText, setFeedbackText] = useState("");
   const [csvData, setCsvData] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   // Filters
   const [urgencyFilter, setUrgencyFilter] = useState("All");
@@ -28,6 +28,7 @@ function App() {
         urgency: data.classification.urgency,
         impact: data.classification.impact,
         summary: data.classification.summary,
+        reason: data.classification.reason || ""
       }]);
     } catch (err) {
       console.error(err);
@@ -62,12 +63,14 @@ function App() {
               urgency: data.classification?.urgency || "Medium",
               impact: data.classification?.impact || "Medium",
               summary: data.classification?.summary || "",
+              reason: data.classification?.reason || ""
             }))
             .catch(() => ({
               feedback: row.text,
               urgency: "Error",
               impact: "Error",
               summary: "Failed to classify",
+              reason: ""
             }))
         );
 
@@ -76,6 +79,27 @@ function App() {
     } catch (err) {
       console.error(err);
       alert("Error processing CSV");
+    }
+    setLoading(false);
+  };
+
+  // Report / Email / Slack Integration
+  const handleGenerateReport = async (type) => {
+    setLoading(true);
+    setStatusMessage("");
+    try {
+      let endpoint = "";
+      if (type === "generate") endpoint = "generate_report";
+      else if (type === "email") 
+        endpoint = "send_email?sender_email=you@gmail.com&sender_password=APP_PASSWORD&recipient_email=recipient@gmail.com";
+      else if (type === "slack") endpoint = "send_slack?webhook_url=YOUR_SLACK_WEBHOOK";
+
+      const res = await fetch(`http://127.0.0.1:8000/${endpoint}`);
+      const data = await res.json();
+      setStatusMessage(data.message || "Action completed");
+    } catch (err) {
+      console.error(err);
+      setStatusMessage("Error performing action: " + err.message);
     }
     setLoading(false);
   };
@@ -126,6 +150,25 @@ function App() {
         </button>
       </div>
 
+      {/* Report Actions */}
+      <div className="mb-3 d-flex gap-2">
+        <button className="btn btn-info" onClick={() => handleGenerateReport("generate")} disabled={loading}>
+          {loading ? "Working..." : "Generate Report"}
+        </button>
+        <button className="btn btn-warning" onClick={() => handleGenerateReport("email")} disabled={loading}>
+          {loading ? "Working..." : "Send Email"}
+        </button>
+        <button className="btn btn-secondary" onClick={() => handleGenerateReport("slack")} disabled={loading}>
+          {loading ? "Working..." : "Send Slack"}
+        </button>
+      </div>
+
+      {statusMessage && (
+        <div className={`alert ${statusMessage.includes("Error") ? "alert-danger" : "alert-success"} mt-2`}>
+          {statusMessage}
+        </div>
+      )}
+
       {/* Filters */}
       {results.length > 0 && (
         <div className="mb-3 d-flex gap-3">
@@ -172,7 +215,12 @@ function App() {
                   <p className="card-text">
                     Impact: <strong style={{ color: r.impact === "High" ? "red" : "black" }}>{r.impact}</strong>
                   </p>
-                  <p className="card-text"><em>{r.summary}</em></p>
+                  {r.summary && (
+                    <p className="card-text"><em>Summary: {r.summary}</em></p>
+                  )}
+                  {r.reason && (
+                    <p className="card-text"><small>Reason: {r.reason}</small></p>
+                  )}
                 </div>
               </div>
             </div>
@@ -189,7 +237,6 @@ function App() {
         <h3>Agentic Workflow Visualization</h3>
         <Workflow />
       </div>
-
     </div>
   );
 }
