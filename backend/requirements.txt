@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+langchain
+langgraph
+openai
+python-dotenv
+requests
+mermaid-cli        # optional if you want to pre-render PNG/SVG locally (node-based)

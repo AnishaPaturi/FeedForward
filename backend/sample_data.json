@@ -1,0 +1,8 @@
+{
+  "items": [
+    {"id": "fb01", "text": "App crashes when I press Save — data loss! Urgent please."},
+    {"id": "fb02", "text": "Feature request: dark mode would be nice."},
+    {"id": "fb03", "text": "The chart loads slowly on mobile."},
+    {"id": "fb04", "text": "Typo on the settings page."}
+  ]
+}

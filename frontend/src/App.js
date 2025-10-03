@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import Papa from "papaparse";
+import Workflow from "./Workflow";
 import "bootstrap/dist/css/bootstrap.min.css";
+import LangGraphViz from "./components/LangGraphViz";
 
 function App() {
   const [feedbackText, setFeedbackText] = useState("");
@@ -181,6 +183,13 @@ function App() {
       {results.length > 0 && filteredResults.length === 0 && (
         <p>No feedback matches the selected filters.</p>
       )}
+
+      {/* LangGraph Workflow Visualization */}
+      <div className="text-center mt-4">
+        <h3>Agentic Workflow Visualization</h3>
+        <Workflow />
+      </div>
+
     </div>
   );
 }

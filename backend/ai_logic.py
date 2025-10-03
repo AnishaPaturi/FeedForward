@@ -1,3 +1,5 @@
+# backend/ai_logic.py
+
 import re
 from transformers import pipeline
 
@@ -5,7 +7,6 @@ from transformers import pipeline
 def preprocess_feedback(text: str) -> str:
     # Remove emojis & special characters (but keep punctuation)
     text = re.sub(r"[^\w\s,.!?]", "", text)
-    # Normalize spaces
     text = re.sub(r"\s+", " ", text).strip()
     return text
 
@@ -18,17 +19,17 @@ def classify_feedback(feedback_text: str):
     try:
         clean_text = preprocess_feedback(feedback_text)
 
-        # Classify urgency
+        # Urgency
         urgency_labels = ["Low urgency", "Medium urgency", "High urgency"]
         urgency_result = classifier(clean_text, urgency_labels)
-        urgency = urgency_result["labels"][0].split()[0]  # e.g., "High"
+        urgency = urgency_result["labels"][0].split()[0]
 
-        # Classify impact
+        # Impact
         impact_labels = ["Low impact", "Medium impact", "High impact"]
         impact_result = classifier(clean_text, impact_labels)
         impact = impact_result["labels"][0].split()[0]
 
-        # Summarize feedback
+        # Summary
         summary_result = summarizer(clean_text, max_length=100, min_length=20, do_sample=False)
         summary = summary_result[0]["summary_text"]
 
