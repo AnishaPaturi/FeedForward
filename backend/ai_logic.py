@@ -1,11 +1,16 @@
-# backend/ai_logic.py
-
+import os
 import re
 from transformers import pipeline
+from dotenv import load_dotenv
+
+# --- Load .env ---
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(dotenv_path)
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # --- Preprocessing ---
 def preprocess_feedback(text: str) -> str:
-    # Remove emojis & special characters (but keep punctuation)
     text = re.sub(r"[^\w\s,.!?]", "", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
@@ -33,11 +38,15 @@ def classify_feedback(feedback_text: str):
         summary_result = summarizer(clean_text, max_length=100, min_length=20, do_sample=False)
         summary = summary_result[0]["summary_text"]
 
+        # Reason (simple explanation)
+        reason = f"Based on the text, urgency is {urgency} and impact is {impact}."
+
         return {
             "feedback": clean_text,
             "urgency": urgency,
             "impact": impact,
-            "summary": summary
+            "summary": summary,
+            "reason": reason
         }
 
     except Exception as e:
