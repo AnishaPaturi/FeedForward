@@ -33,11 +33,10 @@ from typing import Optional
 import pandas as pd
 from backend.ai_logic import classify_feedback
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+import os
 
 app = FastAPI()
-
-
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -63,3 +62,7 @@ def classify(text: Optional[str] = Query(None)):
         return {"error": "Please provide ?text=Your feedback here"}
     result = classify_feedback(text)
     return {"feedback": text, "classification": result}
+
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(os.path.join("static", "favicon.ico"))
