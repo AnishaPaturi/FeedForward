@@ -21,10 +21,23 @@ def preprocess_feedback(text: str) -> str:
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli", framework="pt")
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
+# --- Mapping for scores ---
+SCORE_MAP = {"Low": 1, "Medium": 2, "High": 3}
+
 # --- Feedback Classification ---
 def classify_feedback(feedback_text: str):
     try:
         clean_text = preprocess_feedback(feedback_text)
+
+        # Handle short / empty inputs
+        if not clean_text or len(clean_text.split()) < 3:
+            return {
+                "feedback": clean_text,
+                "urgency": "Low",
+                "impact": "Low",
+                "summary": f"Short feedback: {clean_text}",
+                "reason": "Too short for detailed analysis, defaulting to Low impact/urgency."
+            }
 
         # Urgency
         urgency_labels = ["Low urgency", "Medium urgency", "High urgency"]
@@ -37,18 +50,27 @@ def classify_feedback(feedback_text: str):
         impact = impact_result["labels"][0].split()[0]
 
         # Summary
-        summary_result = summarizer(clean_text, max_length=100, min_length=20, do_sample=False)
-        summary = summary_result[0]["summary_text"]
+        try:
+            summary_result = summarizer(clean_text, max_length=80, min_length=15, do_sample=False)
+            summary = summary_result[0]["summary_text"]
+        except Exception:
+            summary = clean_text  # fallback
+
+        # Priority score
+        urgency_score = SCORE_MAP.get(urgency, 1)
+        impact_score = SCORE_MAP.get(impact, 1)
+        priority_score = urgency_score + impact_score  # scale 2–6
 
         # Reason
-        reason = f"Based on the text, urgency is {urgency} and impact is {impact}."
+        reason = f"Based on the feedback text, urgency is {urgency} and impact is {impact}."
 
         return {
             "feedback": clean_text,
             "urgency": urgency,
             "impact": impact,
+            "priority_score": priority_score,
             "summary": summary,
-            "reason": reason
+            "reason": reason,
         }
 
     except Exception as e:
@@ -56,9 +78,6 @@ def classify_feedback(feedback_text: str):
 
 # --- Generate Insights ---
 def generate_insights(feedback_list: list):
-    """
-    feedback_list: list of strings (all feedback entries)
-    """
     try:
         prompt = "Generate actionable product insights based on the following customer feedback:\n"
         prompt += "\n".join(feedback_list)
@@ -76,22 +95,7 @@ def generate_insights(feedback_list: list):
     except Exception as e:
         return f"Error generating insights: {str(e)}"
 
-# --- Generate LLM Quote ---
-def generate_llm_quote():
-    try:
-        prompt = "Generate a short inspirational quote about AI helping product teams:"
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=50,
-            temperature=0.8,
-        )
-        quote_text = response['choices'][0]['message']['content'].strip()
-        return quote_text
-    except Exception as e:
-        return f"Error generating quote: {str(e)}"
-
-# --- Rotating Predefined Quotes ---
+# --- Rotating Quotes ---
 ROTATING_QUOTES = [
     "Customer feedback is our roadmap to success.",
     "Every opinion counts. Listen carefully!",
@@ -102,8 +106,7 @@ ROTATING_QUOTES = [
     "Your voice shapes our next release."
 ]
 
-_quote_index = 0  # internal counter
-
+_quote_index = 0
 def get_rotating_quote():
     global _quote_index
     quote = ROTATING_QUOTES[_quote_index]
