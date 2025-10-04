@@ -1,66 +1,91 @@
 import React, { useState, useEffect } from "react";
 import Papa from "papaparse";
-// import Workflow from "./Workflow";
 import AgentWorkflow from "./AgentWorkflow";
 import "bootstrap/dist/css/bootstrap.min.css";
+
+// Default quotes (can replace with API later)
+const defaultQuotes = [
+  "Feedback is the breakfast of champions.",
+  "Your most unhappy customers are your greatest source of learning.",
+  "Listening to feedback is the key to growth.",
+  "The customer’s perception is your reality.",
+];
 
 function App() {
   const [feedbackText, setFeedbackText] = useState("");
   const [csvData, setCsvData] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
+  const [insight, setInsight] = useState("");
+  const [insightLoading, setInsightLoading] = useState(false);
 
   // Filters
   const [urgencyFilter, setUrgencyFilter] = useState("All");
   const [impactFilter, setImpactFilter] = useState("All");
 
-  // --- 🔥 Real Hackathon Quotes (Yours) ---
-  const quotes = [
-    "Turning feedback chaos into clarity.",
-    "My GenAI agent just had its first ‘real conversation’ — and wow, it was interesting.",
-    "Day 2 of the AI Agent Hackathon — my Customer Feedback Prioritizer is officially alive!",
-    "Making product teams listen smarter, not harder.",
-    "From noise to insights — that’s FeedForward AI.",
-    "Building agents that don’t just analyze, but understand.",
-  ];
+  // Workflow node states
+  const [workflowNodes, setWorkflowNodes] = useState({
+    input: false,
+    preprocessing: false,
+    classification: false,
+    ranking: false,
+    output: false,
+    complete: false,
+  });
 
-  const [currentQuote, setCurrentQuote] = useState(quotes[0]);
-
-  // Rotate quotes every 7 seconds
+  // Display random quote on load
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentQuote((prev) => {
-        const currentIndex = quotes.indexOf(prev);
-        const nextIndex = (currentIndex + 1) % quotes.length;
-        return quotes[nextIndex];
-      });
-    }, 7000);
-    return () => clearInterval(interval);
-  }, [quotes]);
+    const quote = defaultQuotes[Math.floor(Math.random() * defaultQuotes.length)];
+    setInsight(quote);
+  }, []);
 
   // --- Single Feedback Submit ---
   const handleFeedbackSubmit = async () => {
     if (!feedbackText) return alert("Please enter feedback");
     setLoading(true);
+
+    // Reset workflow
+    setWorkflowNodes({
+      input: true,
+      preprocessing: false,
+      classification: false,
+      ranking: false,
+      output: false,
+      complete: false,
+    });
+
     try {
+      await new Promise((res) => setTimeout(res, 1000));
+      setWorkflowNodes((prev) => ({ ...prev, preprocessing: true }));
+
+      await new Promise((res) => setTimeout(res, 1500));
+      setWorkflowNodes((prev) => ({ ...prev, classification: true }));
+
       const res = await fetch(
         `http://127.0.0.1:8000/classify?text=${encodeURIComponent(feedbackText)}`
       );
       const data = await res.json();
-      setResults([
-        {
-          feedback: data.feedback,
-          urgency: data.classification.urgency,
-          impact: data.classification.impact,
-          summary: data.classification.summary,
-          reason: data.classification.reason || "",
-        },
-      ]);
+
+      await new Promise((res) => setTimeout(res, 1500));
+      setWorkflowNodes((prev) => ({ ...prev, ranking: true }));
+
+      const newResult = {
+        feedback: data.feedback,
+        urgency: data.classification.urgency,
+        impact: data.classification.impact,
+        summary: data.classification.summary,
+        reason: data.classification.reason || "",
+      };
+      setResults([newResult]);
+
+      await new Promise((res) => setTimeout(res, 1000));
+      setWorkflowNodes((prev) => ({ ...prev, output: true, complete: true }));
     } catch (err) {
       console.error(err);
       alert("Error connecting to backend");
+      setWorkflowNodes((prev) => ({ ...prev, complete: false }));
     }
+
     setLoading(false);
   };
 
@@ -79,7 +104,23 @@ function App() {
   const handleCsvProcess = async () => {
     if (csvData.length === 0) return alert("No CSV data to process");
     setLoading(true);
+
+    setWorkflowNodes({
+      input: true,
+      preprocessing: false,
+      classification: false,
+      ranking: false,
+      output: false,
+      complete: false,
+    });
+
     try {
+      await new Promise((res) => setTimeout(res, 1000));
+      setWorkflowNodes((prev) => ({ ...prev, preprocessing: true }));
+
+      await new Promise((res) => setTimeout(res, 1500));
+      setWorkflowNodes((prev) => ({ ...prev, classification: true }));
+
       const fetchPromises = csvData
         .filter((row) => row.text)
         .map((row) =>
@@ -102,35 +143,34 @@ function App() {
         );
 
       const processedResults = await Promise.all(fetchPromises);
+
+      await new Promise((res) => setTimeout(res, 1500));
+      setWorkflowNodes((prev) => ({ ...prev, ranking: true }));
+
       setResults(processedResults);
+      await new Promise((res) => setTimeout(res, 1000));
+      setWorkflowNodes((prev) => ({ ...prev, output: true, complete: true }));
     } catch (err) {
       console.error(err);
       alert("Error processing CSV");
+      setWorkflowNodes((prev) => ({ ...prev, complete: false }));
     }
+
     setLoading(false);
   };
 
-  // --- Report / Email / Slack Integration ---
-  const handleGenerateReport = async (type) => {
-    setLoading(true);
-    setStatusMessage("");
+  // --- Generate Insights ---
+  const handleGenerateInsight = async () => {
+    setInsightLoading(true);
     try {
-      let endpoint = "";
-      if (type === "generate") endpoint = "generate_report";
-      else if (type === "email")
-        endpoint =
-          "send_email?sender_email=you@gmail.com&sender_password=APP_PASSWORD&recipient_email=recipient@gmail.com";
-      else if (type === "slack")
-        endpoint = "send_slack?webhook_url=YOUR_SLACK_WEBHOOK";
-
-      const res = await fetch(`http://127.0.0.1:8000/${endpoint}`);
+      const res = await fetch(`http://127.0.0.1:8000/generate_insights`);
       const data = await res.json();
-      setStatusMessage(data.message || "Action completed");
+      setInsight(data.insight || "No insights generated");
     } catch (err) {
       console.error(err);
-      setStatusMessage("Error performing action: " + err.message);
+      setInsight("Error generating insights");
     }
-    setLoading(false);
+    setInsightLoading(false);
   };
 
   // --- Apply Filters ---
@@ -144,11 +184,12 @@ function App() {
     <div className="container p-4">
       <h1 className="mb-2 text-center fw-bold">Customer Feedback Prioritizer</h1>
 
-      {/* Rotating Quotes */}
-      <blockquote className="blockquote text-center mb-4">
-        <p className="mb-0 fs-5 fst-italic">“{currentQuote}”</p>
-        <footer className="blockquote-footer mt-1">FeedForward AI Agent</footer>
-      </blockquote>
+      {/* Quote / Insight */}
+      {insight && (
+        <div className="alert alert-info text-center">
+          <em>💡 {insight}</em>
+        </div>
+      )}
 
       {/* Single feedback input */}
       <div className="mb-3">
@@ -186,40 +227,16 @@ function App() {
         </button>
       </div>
 
-      {/* Report Actions */}
-      <div className="mb-3 d-flex gap-2">
+      {/* Generate Insights */}
+      <div className="mb-3">
         <button
           className="btn btn-info"
-          onClick={() => handleGenerateReport("generate")}
-          disabled={loading}
+          onClick={handleGenerateInsight}
+          disabled={insightLoading}
         >
-          {loading ? "Working..." : "Generate Report"}
-        </button>
-        <button
-          className="btn btn-warning"
-          onClick={() => handleGenerateReport("email")}
-          disabled={loading}
-        >
-          {loading ? "Working..." : "Send Email"}
-        </button>
-        <button
-          className="btn btn-secondary"
-          onClick={() => handleGenerateReport("slack")}
-          disabled={loading}
-        >
-          {loading ? "Working..." : "Send Slack"}
+          {insightLoading ? "Generating..." : "Generate Insights"}
         </button>
       </div>
-
-      {statusMessage && (
-        <div
-          className={`alert ${
-            statusMessage.includes("Error") ? "alert-danger" : "alert-success"
-          } mt-2`}
-        >
-          {statusMessage}
-        </div>
-      )}
 
       {/* Filters */}
       {results.length > 0 && (
@@ -260,43 +277,25 @@ function App() {
             <div key={idx} className="col-md-4 mb-3">
               <div
                 className={`card border-${
-                  r.urgency === "High" || r.impact === "High"
-                    ? "danger"
-                    : "secondary"
+                  r.urgency === "High" || r.impact === "High" ? "danger" : "secondary"
                 }`}
               >
                 <div className="card-body">
                   <h5 className="card-title">{r.feedback}</h5>
                   <p className="card-text">
                     Urgency:{" "}
-                    <strong
-                      style={{
-                        color: r.urgency === "High" ? "red" : "black",
-                      }}
-                    >
+                    <strong style={{ color: r.urgency === "High" ? "red" : "black" }}>
                       {r.urgency}
                     </strong>
                   </p>
                   <p className="card-text">
                     Impact:{" "}
-                    <strong
-                      style={{
-                        color: r.impact === "High" ? "red" : "black",
-                      }}
-                    >
+                    <strong style={{ color: r.impact === "High" ? "red" : "black" }}>
                       {r.impact}
                     </strong>
                   </p>
-                  {r.summary && (
-                    <p className="card-text">
-                      <em>Summary: {r.summary}</em>
-                    </p>
-                  )}
-                  {r.reason && (
-                    <p className="card-text">
-                      <small>Reason: {r.reason}</small>
-                    </p>
-                  )}
+                  {r.summary && <p className="card-text"><em>Summary: {r.summary}</em></p>}
+                  {r.reason && <p className="card-text"><small>Reason: {r.reason}</small></p>}
                 </div>
               </div>
             </div>
@@ -304,19 +303,9 @@ function App() {
         </div>
       )}
 
-      {results.length > 0 && filteredResults.length === 0 && (
-        <p>No feedback matches the selected filters.</p>
-      )}
-
       {/* Workflow Visualization */}
-      {/* <div className="text-center mt-4">
-        <h3>Agentic Workflow Visualization</h3>
-        <Workflow />
-      </div> */}
-      {/* LangGraph Agent Workflow Simulation */}
       <div className="text-center mt-4">
-        {/* <h3>Agentic Workflow Execution</h3> */}
-        <AgentWorkflow />
+        <AgentWorkflow nodes={workflowNodes} />
       </div>
     </div>
   );

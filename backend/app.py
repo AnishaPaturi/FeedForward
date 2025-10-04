@@ -5,7 +5,7 @@ from fastapi.responses import FileResponse
 import os
 import pandas as pd
 
-from backend.ai_logic import classify_feedback
+from backend.ai_logic import classify_feedback, generate_insights, generate_llm_quote
 from backend.feedback_processing import process_feedback
 from backend.feedback_processing.generate_report import generate_report
 from backend.integrations.email_sender import send_email_report
@@ -13,7 +13,6 @@ from backend.integrations.slack_notion_sender import send_slack_report
 
 # --- App Setup ---
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],  # React frontend
@@ -47,15 +46,7 @@ def classify_endpoint(text: Optional[str] = Query(None)):
     if not text:
         return {"error": "Please provide ?text=Your feedback here"}
     result = classify_feedback(text)
-    return {
-        "feedback": text,
-        "classification": {
-            "urgency": result.get("urgency"),
-            "impact": result.get("impact"),
-            "summary": result.get("summary"),
-            "reason": result.get("reason")
-        }
-    }
+    return {"feedback": text, "classification": result}
 
 # --- Generate Weekly Report ---
 @app.get("/generate_report")
@@ -64,7 +55,7 @@ def generate_weekly_report(format: Optional[str] = "json"):
     report_file = generate_report(processed_feedback, format=format)
     return {"message": f"Report generated: {report_file}", "file": report_file}
 
-# --- Send Report via Slack ---
+# --- Send report via Slack ---
 @app.get("/send_slack")
 def send_report_slack(webhook_url: str, format: Optional[str] = "json"):
     processed_feedback = process_feedback.get_processed_feedback(DATA_FILE)
@@ -72,7 +63,7 @@ def send_report_slack(webhook_url: str, format: Optional[str] = "json"):
     send_slack_report(webhook_url, report_file)
     return {"message": "Report sent to Slack", "file": report_file}
 
-# --- Send Report via Email ---
+# --- Send report via Email ---
 @app.get("/send_email")
 def send_report_email(
     sender_email: str,
@@ -86,6 +77,19 @@ def send_report_email(
     report_file = generate_report(processed_feedback, format=format)
     send_email_report(sender_email, sender_password, recipient_email, subject, body, report_file)
     return {"message": f"Report sent to {recipient_email}", "file": report_file}
+
+# --- Generate Actionable Insights ---
+@app.get("/generate_insights")
+def insights():
+    feedback_list = df["feedback"].tolist()
+    insight_text = generate_insights(feedback_list)
+    return {"insights": insight_text}
+
+# --- Generate LLM Quote ---
+@app.get("/generate_quote")
+def quote():
+    quote_text = generate_llm_quote()
+    return {"quote": quote_text}
 
 @app.get("/favicon.ico")
 async def favicon():
