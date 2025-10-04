@@ -1,0 +1,51 @@
+Feedback_ID,Customer_Name,Department,Source,Feedback_Text,Urgency,Impact,Status,Date_Received
+FB001,Customer 1,Support,App,Delayed response from the support team.,High,Low,In Progress,2024-05-17
+FB002,Customer 2,Engineering,Social Media,Excellent customer support!,Low,Medium,In Progress,2024-04-23
+FB003,Customer 3,HR,Social Media,The new update improved performance.,Medium,Low,Pending,2024-08-25
+FB004,Customer 4,HR,Website,Billing errors occur too often.,Low,Low,Resolved,2024-03-23
+FB005,Customer 5,Engineering,Website,Excellent customer support!,High,Low,Resolved,2024-02-11
+FB006,Customer 6,Finance,Email,App crashes frequently during login.,Medium,Medium,Resolved,2024-01-24
+FB007,Customer 7,Finance,App,Delivery was quick and smooth.,Medium,Low,In Progress,2024-06-30
+FB008,Customer 8,Sales,Social Media,App crashes frequently during login.,High,Medium,In Progress,2024-01-24
+FB009,Customer 9,Engineering,Social Media,Delivery was quick and smooth.,High,High,In Progress,2024-04-29
+FB010,Customer 10,Sales,Social Media,Website UI feels outdated.,High,Medium,In Progress,2024-08-01
+FB011,Customer 11,Finance,App,Delivery was quick and smooth.,High,Low,Resolved,2024-08-02
+FB012,Customer 12,Finance,Email,App crashes frequently during login.,High,Medium,Pending,2024-04-25
+FB013,Customer 13,HR,Call,The new update improved performance.,Medium,High,Resolved,2024-04-18
+FB014,Customer 14,Finance,Call,Excellent customer support!,Low,Low,Pending,2024-05-08
+FB015,Customer 15,Support,Website,Delivery was quick and smooth.,Low,Low,In Progress,2024-06-06
+FB016,Customer 16,Engineering,Email,Delivery was quick and smooth.,High,High,Pending,2024-03-09
+FB017,Customer 17,Support,Social Media,The new update improved performance.,High,Medium,Pending,2024-08-06
+FB018,Customer 18,Finance,Call,Add dark mode feature please.,Medium,Medium,Pending,2024-06-10
+FB019,Customer 19,Sales,Social Media,Billing errors occur too often.,Low,Low,Pending,2024-06-20
+FB020,Customer 20,Support,Call,Need better integration with third-party apps.,Low,Medium,Pending,2024-09-17
+FB021,Customer 21,Support,Social Media,Website UI feels outdated.,Low,High,In Progress,2024-08-31
+FB022,Customer 22,HR,Email,Delivery was quick and smooth.,Medium,Low,Resolved,2024-07-19
+FB023,Customer 23,Sales,Call,Billing errors occur too often.,Low,Low,In Progress,2024-06-11
+FB024,Customer 24,Support,Call,Delayed response from the support team.,Medium,Medium,In Progress,2024-09-07
+FB025,Customer 25,HR,Website,Excellent customer support!,Low,Medium,Pending,2024-03-12
+FB026,Customer 26,Support,App,Delayed response from the support team.,Low,Medium,Resolved,2024-01-29
+FB027,Customer 27,Sales,Call,Billing errors occur too often.,High,High,In Progress,2024-03-06
+FB028,Customer 28,Engineering,Social Media,Add dark mode feature please.,High,High,In Progress,2024-02-22
+FB029,Customer 29,HR,Email,Delayed response from the support team.,Low,Medium,Resolved,2024-07-19
+FB030,Customer 30,Finance,Email,Delivery was quick and smooth.,High,High,In Progress,2024-08-26
+FB031,Customer 31,HR,Social Media,The new update improved performance.,High,Low,Resolved,2024-09-12
+FB032,Customer 32,Finance,Call,Delayed response from the support team.,Medium,Medium,Pending,2024-04-27
+FB033,Customer 33,Engineering,Website,Website UI feels outdated.,High,High,In Progress,2024-01-15
+FB034,Customer 34,Sales,Call,Website UI feels outdated.,Medium,Medium,In Progress,2024-08-08
+FB035,Customer 35,Finance,Email,The new update improved performance.,High,High,Resolved,2024-09-09
+FB036,Customer 36,Support,Email,The new update improved performance.,High,High,Pending,2024-05-15
+FB037,Customer 37,HR,Website,The new update improved performance.,High,High,Pending,2024-09-01
+FB038,Customer 38,Sales,Email,The payment process is too complicated.,High,Low,In Progress,2024-03-23
+FB039,Customer 39,Engineering,Website,Add dark mode feature please.,Low,Low,Pending,2024-05-07
+FB040,Customer 40,Sales,App,Add dark mode feature please.,High,Low,Resolved,2024-03-10
+FB041,Customer 41,Finance,Website,Delayed response from the support team.,Medium,Medium,In Progress,2024-06-04
+FB042,Customer 42,HR,Call,Excellent customer support!,High,Low,In Progress,2024-02-13
+FB043,Customer 43,Engineering,Email,Delivery was quick and smooth.,Low,Medium,Pending,2024-04-19
+FB044,Customer 44,Finance,App,Add dark mode feature please.,Low,Low,Resolved,2024-05-14
+FB045,Customer 45,Engineering,Email,Billing errors occur too often.,Medium,Low,Resolved,2024-07-12
+FB046,Customer 46,Engineering,App,Excellent customer support!,High,Low,Pending,2024-07-25
+FB047,Customer 47,HR,Email,Delayed response from the support team.,Low,Medium,In Progress,2024-08-12
+FB048,Customer 48,Finance,Call,The payment process is too complicated.,Medium,Low,In Progress,2024-07-19
+FB049,Customer 49,Sales,Email,Delayed response from the support team.,High,High,In Progress,2024-03-30
+FB050,Customer 50,Finance,Call,Need better integration with third-party apps.,High,Medium,In Progress,2024-08-08

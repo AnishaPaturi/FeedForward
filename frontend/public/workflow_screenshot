@@ -1,0 +1,10 @@
+// Customer Feedback Workflow
+digraph {
+	preprocess [label=Preprocess]
+	classify [label=Classify]
+	rank [label=Rank]
+	generate_report [label=Generate_report]
+	preprocess -> classify
+	classify -> rank
+	rank -> generate_report
+}
