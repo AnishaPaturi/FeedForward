@@ -202,19 +202,19 @@ function App() {
     setLoading(false);
   };
 
-  // --- Generate Insights ---
-  const handleGenerateInsight = async () => {
-    setInsightLoading(true);
-    try {
-      const res = await fetch(`http://127.0.0.1:8000/generate_insights`);
-      const data = await res.json();
-      setInsight(data.insight || "No insights generated");
-    } catch (err) {
-      console.error(err);
-      setInsight("Error generating insights");
-    }
-    setInsightLoading(false);
-  };
+  // // --- Generate Insights ---
+  // const handleGenerateInsight = async () => {
+  //   setInsightLoading(true);
+  //   try {
+  //     const res = await fetch(`http://127.0.0.1:8000/generate_insights`);
+  //     const data = await res.json();
+  //     setInsight(data.insight || "No insights generated");
+  //   } catch (err) {
+  //     console.error(err);
+  //     setInsight("Error generating insights");
+  //   }
+  //   setInsightLoading(false);
+  // };
 
   // --- Apply Filters ---
   const filteredResults = results.filter(
@@ -298,8 +298,76 @@ function App() {
         </button>
       </div>
 
+      {/* Weekly Report & Integrations */}
+      <div className="mb-3 d-flex gap-2">
+        <button
+          className="btn btn-warning"
+          onClick={async () => {
+            try {
+              const res = await fetch("http://127.0.0.1:8000/generate_report");
+              const data = await res.json();
+              alert(`Report generated: ${data.file}`);
+            } catch (err) {
+              console.error(err);
+              alert("Error generating report");
+            }
+          }}
+        >
+          Generate Weekly Report
+        </button>
+
+        <button
+          className="btn btn-info"
+          onClick={async () => {
+            const webhookUrl = prompt("Enter your Slack webhook URL:");
+            if (!webhookUrl) return;
+            try {
+              const res = await fetch(
+                `http://127.0.0.1:8000/send_slack?webhook_url=${encodeURIComponent(
+                  webhookUrl
+                )}`
+              );
+              const data = await res.json();
+              alert(data.message);
+            } catch (err) {
+              console.error(err);
+              alert("Error sending report to Slack");
+            }
+          }}
+        >
+          Send Report to Slack
+        </button>
+
+        <button
+          className="btn btn-success"
+          onClick={async () => {
+            const sender = prompt("Enter your email:");
+            const password = prompt("Enter your email password:");
+            const recipient = prompt("Enter recipient email:");
+            if (!sender || !password || !recipient) return;
+
+            try {
+              const url = `http://127.0.0.1:8000/send_email?sender_email=${encodeURIComponent(
+                sender
+              )}&sender_password=${encodeURIComponent(
+                password
+              )}&recipient_email=${encodeURIComponent(recipient)}`;
+              const res = await fetch(url);
+              const data = await res.json();
+              alert(data.message);
+            } catch (err) {
+              console.error(err);
+              alert("Error sending report via Email");
+            }
+          }}
+        >
+          Send Report via Email
+        </button>
+      </div>
+
+
       {/* Generate Insights */}
-      <div className="mb-3">
+      {/* <div className="mb-3">
         <button
           className="btn btn-info"
           onClick={handleGenerateInsight}
@@ -307,7 +375,7 @@ function App() {
         >
           {insightLoading ? "Generating..." : "Generate Insights"}
         </button>
-      </div>
+      </div> */}
 
       {/* Filters */}
       {results.length > 0 && (
